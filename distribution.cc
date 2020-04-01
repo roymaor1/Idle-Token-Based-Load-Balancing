@@ -108,4 +108,4 @@ int getRatio(int Case){
             break;
     }
 }
-/////
+//////
