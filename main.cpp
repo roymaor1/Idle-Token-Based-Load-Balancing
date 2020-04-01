@@ -51,7 +51,7 @@ static vector<double> factors_4_6 = {0.5,0.55,0.6,0.65,0.6538,0.6577,0.6615,0.66
 
 /////////////////////////////// Main Function: ///////////////////////////////
 
-int main() { //int argc, char *argv[]
+int main() {
 
     /// Time Definitions (for output file)
     clock_t start, end;
@@ -80,11 +80,6 @@ int main() { //int argc, char *argv[]
         }
 
 
-        //logNormalMean = 20;
-        //cout << "----logNormalMean: " << logNormalMean << endl;
-
-
-
         /// Initialize distibution functions and definitions
         std::geometric_distribution<int> distGeomHomo(p_H); // dist_geom is homogenous
         std::geometric_distribution<int> distGeomStrong(p_Strong); // distGeomWeak is hetrogenous
@@ -95,9 +90,6 @@ int main() { //int argc, char *argv[]
 
 
         for( int k = 2; k <= 4; k++){
-
-
-
 
 
             /// Start run for each algorithm (JSQ, JIQ, PI, PI_K)
@@ -158,34 +150,16 @@ int main() { //int argc, char *argv[]
                     my_LB.clearServers();
                     nextIdTask = 1;
 
-                    /// Print iteration number
-                    //std::cout << "case: " << Case << ", alg: " << algorithms[n] << ", k: " << k << ", iter: " << i << endl;
-
-                    /// Poisson/Lognormal distribution (for each LB factor)
-                    //std::poisson_distribution<int> distEntry(factors[i]*distParam); // called 30 times
                     std::lognormal_distribution<double> distEntry(factors[i]*logNormalMean, 1); // entry of tasks distribution
-
-                    //cout << "load: " << factors[i]*distParam << endl;
-
-                    /// Print Full Status
-                    //my_LB.print();
-
-                    /// Empiric Mean Check
-                    //cout << "logNormal Mean: " << factors[i]*logNormalMean;
-                    //double empiricSum = 0;
 
                     for(int j=0; j<timeSlots; j++){
 
                         int tasks = distEntry(eng);
-                        //empiricSum+=tasks;
-                        // print iteration number
-                        //cout << i << ": " << tasks << endl;
-
+                        
                         /// Starts time slot
 
                         /// Find server to push to by the LB's algorithm
                         int chosenServer = my_LB.doAlg();
-                        //cout << "chosen server is: " << chosenServer << endl;
 
                         /// Push all tasks in LB queue to the chosen server
                         my_LB.sendTasks(chosenServer, tasks);
@@ -224,26 +198,19 @@ int main() { //int argc, char *argv[]
 
 
                         /// Complete tasks
-                        //cout << "completed tasks of server " << i << ": " << geomValues[i] << endl;
                         my_LB.completeTasks(geomValues);
 
                         /// Finish time slot
                         currTasks = my_LB.averageTasksInSystem();
-                        //cout << "sum of tasks in system: " << currTasks << endl;
                         taskSum += currTasks;
 
-                        /// Print LB status
-                        //my_LB.print();
-                        //cout << "--------------------------------------------------" << endl;
                     }
 
-
-                    //cout << "empiricMean: " << (double)empiricSum/timeSlots << endl;
 
                     /// Finished all time slots for factor X
                     /// Analyze data for X + write to output file
                     meanTasks = (double)taskSum/(double)timeSlots; // called 30 times
-                    meanTasksFile << factors[i] << " " << meanTasks << endl; //<< "\n";
+                    meanTasksFile << factors[i] << " " << meanTasks << endl;
                     taskSum = 0;
                 }
                 meanTasksFile.close();
