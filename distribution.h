@@ -47,4 +47,5 @@ double calculateStrongP(int nStrong, int nWeak, int ratio);
 
 /// Lognormal
 double calculateMean(double constant);
+//
 #endif
