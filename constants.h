@@ -45,5 +45,5 @@ const double lambda_NH = 100.0; // mean: lambda. >81. NH = NOT HOMOGENOUS
 
 
 
-//
+///
 #endif //INC_10_PROJECT_B_CONSTANTS_H
