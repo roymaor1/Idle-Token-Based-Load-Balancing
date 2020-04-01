@@ -17,19 +17,12 @@
 using namespace std;
 
 //*****************************************************************************************************
-		// function name:	chooseRandomServer	
+		// function name:	chooseRandomServerFromSet	
 		// Description:		If server pool exists and valid, chooses randomly among it. Elsewise chooses from all servers
 		// Parameters:		set<int> serverPool, bool isValid
 		// Returns:		chosen server's id
 //*****************************************************************************************************
 int chooseRandomServerFromSet(set<int> serverPool, bool isValid);
-
-int chooseRandomServerFromQueue(queue<int> serverPool, bool isValid);
-
-
-unsigned generateSeed();
-
-std::default_random_engine generateEngine(unsigned seed);
 
 //*****************************************************************************************************
 		// function name:	calculateStrongP	
@@ -37,15 +30,19 @@ std::default_random_engine generateEngine(unsigned seed);
 		// Parameters:		int nStrong, int nWeak, int ratio
 		// Returns:		strong P value
 //*****************************************************************************************************
+double calculateStrongP(int nStrong, int nWeak, int ratio);
+
+unsigned generateSeed();
+
+std::default_random_engine generateEngine(unsigned seed);
 
 int getRatio(int Case);
 
-/// Poisson
+int chooseRandomServerFromQueue(queue<int> serverPool, bool isValid);
 
 void calcParams(int h_type, int* n_Strong, double* p_Strong, double* p_Weak);
-double calculateStrongP(int nStrong, int nWeak, int ratio);
 
-/// Lognormal
 double calculateMean(double constant);
+
 //
 #endif
