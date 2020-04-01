@@ -1,7 +1,3 @@
-//
-// Created by Roy on 28/10/2018.
-//
-
 #include "server.h"
 #include <iostream>
 
@@ -11,15 +7,6 @@ void Server::pushTask(Task t){
 
 void Server::print() {
 	cout << this->id << ": " << this->p << endl;
-	/*
-	queue<Task> printQ = Queue;
-	int i = 0;
-	while (!printQ.empty()) {
-		std::cout << "Element number " << i << ": " << printQ.front().getId() << std::endl;
-		printQ.pop();
-		i++;
-	}
-	 */
 }
 
 void Server::setServerP(double p){
@@ -40,11 +27,9 @@ int Server::getServerSize(){
 
 void Server::completeTasks(int completed){
 	int tasksToComplete = completed;
-	//cout << "completed tasks: " << completed << endl;
 	int size = this->getServerSize();
 	if(tasksToComplete > size) // cant pop more than size of queue
 		tasksToComplete = size;
-	//cout << "server number " << this->getServerID() << ": popping " << completedTasks << " out of " << size << endl;
 	for (int i = 0; i < tasksToComplete; i++){
 		Queue.pop();
 	}
