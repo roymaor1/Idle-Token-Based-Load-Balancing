@@ -1,6 +1,7 @@
 //
 // Created by Roy on 10/12/2018.
 //
+using namespace std;
 #include <iostream>
 #include <string>
 
@@ -10,29 +11,39 @@
 
 /////////////////////////////// Constants: ///////////////////////////////
 
-enum pType {HOMOGENOUS, SOFT_HETEROGENEOUS, HARD_HETEROGENEOUS};
-enum ratio {oneToNine, fiveToFive, nineToOne}; //left side is strong server
-// definitions of time slice and servers
-// final tests should take timeSlots = 1000000, numOfServers = 10
+/// Type definitions (from main):
+/*
+ * 0 - HOMOGENOUS
+ * 1 - SOFT_HETEROGENEOUS + fiveToFive
+ * 2 - SOFT_HETEROGENEOUS + nineToOne
+ * 3 - SOFT_HETEROGENEOUS + oneToNine
+ * 4 - HARD_HETEROGENEOUS + fiveToFive
+ * 5 - HARD_HETEROGENEOUS + nineToOne
+ * 6 - HARD_HETEROGENEOUS + oneToNine
+ */
 
-const int timeSlots = (int)10e4; // num of time iterations.
+// 1000 - 1 thousand
+// 10000 - 10 thousand
+// 100000 - 100 thousand
+// 1000000 - 1 million
+
+/// Time slice and #Servers
+/// Final tests should take timeSlots = 1000000, numOfServers = 10
+const int timeSlots = (int)10000000; // num of time iterations
 const int numOfServers = 10; // num of servers
 
-//p
-const pType pCase = SOFT_HETEROGENEOUS;
-const ratio nRatio = fiveToFive;
+/// Factors
+const int numOfAlgs = 4; // JSQ, JIQ, PI, PI_K
+
+/// Distributional parameters
+/// Condition: numOfServers*(1/p) >= lambda (homogeneous case)
+
+/// These lambda values set the p values (they are constant)!
+const double p_H_Global = 1.0/3.0; // mean: 1-p/p (2 for p=1/3)
+const double lambda_H = 20.0; // mean: lambda. H = HOMOGENOUS
+const double lambda_NH = 100.0; // mean: lambda. >81. NH = NOT HOMOGENOUS
 
 
-// definitions of distributional parameters
-// Condition: numOfServers*(1/p) >= lambda (homogeneous case)
 
-
-//const double pStrongConst = 0.9;
-const double NH_lambda = 100.0; // mean: lambda. >81
-const double H_lambda = 20.0; // mean: lambda
-const double p = 1.0/3.0; // mean: 1-p/p (2 for p=1/3)
-const int numOfFactors = 30; // width of sampling vector
-//const int UNI_MIN = 0;
-//const int UNI_MAX = 10;
 
 #endif //INC_10_PROJECT_B_CONSTANTS_H

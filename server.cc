@@ -46,7 +46,6 @@ void Server::completeTasks(int completed){
 		tasksToComplete = size;
 	//cout << "server number " << this->getServerID() << ": popping " << completedTasks << " out of " << size << endl;
 	for (int i = 0; i < tasksToComplete; i++){
-		//delete Queue.front();
 		Queue.pop();
 	}
 }
@@ -54,11 +53,4 @@ void Server::completeTasks(int completed){
 void Server::clear(){
 	queue<Task> empty;
 	swap(Queue,empty);
-	/*
-	int n = this->Queue.size();
-	for (int i=0; i<n; i++){
-		delete Queue.front();
-		Queue.pop();
-	}
-	 */
 }

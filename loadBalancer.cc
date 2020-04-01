@@ -13,6 +13,7 @@ int loadBalancer::doAlg(){
 		case JSQ : return doJSQ();
 		case JIQ : return doJIQ();
 		case PI : return doPI();
+		case PI_K : return doPI_K();
 		default: return -1;
 	}
 }
@@ -23,19 +24,42 @@ void loadBalancer::sendTasks(int serverIndex, int numOfTasks){ // send tasks to 
 	int old_size = this->servers.at(serverIndex).getServerSize();
 	for(int i=0; i<numOfTasks; i++){
 		Task outTask = Task(nextIdTask);
-		this->servers.at(serverIndex).pushTask(outTask);
+		servers.at(serverIndex).pushTask(outTask);
 		nextIdTask++;
 	}
 	// JIQ, PI: if chosen server was empty and now got filled, remove it from empty_servers set
-	if((this->alg == JIQ || this->alg == PI) && old_size == 0 && numOfTasks > 0) {
+	if((alg != JSQ) && old_size == 0 && numOfTasks > 0) {
 		empty_servers.erase(serverIndex);
+	}
+}
+
+void loadBalancer::completeTasks(int geomValues[]){
+	int i = 0, old_size;
+	/*
+	for (int j=0; j<numOfServers; j++)
+		cout << "Geom Values in index " << j << ": " << geomValues[j] << endl;
+	*/
+	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++){
+		old_size = (*it).getServerSize();
+		(*it).completeTasks(geomValues[i]);
+		i++;
+		// JIQ, PI: if chosen server was empty and now got filled, remove it from empty_servers set
+		if((alg != JSQ) && (*it).getServerSize() == 0) {
+			empty_servers.insert((*it).getServerID()); // set allows no dups
+		}
+		if((alg == PI_K) && (*it).getServerSize() == 0 && old_size > 0){
+			if(lastIdled.size() == k){
+				lastIdled.pop();
+			}
+			lastIdled.push((*it).getServerID());
+		}
 	}
 }
 
 void loadBalancer::print() {
 	int i=0;
 	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++) {
-		std::cout << "Server number " << i << ": " << std::endl;
+		//std::cout << "Server number " << i << ": " << std::endl;
 		(*it).print();
 		i++;
 	}
@@ -44,70 +68,21 @@ void loadBalancer::print() {
 void loadBalancer::setHomogeneous(double p) {
 	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
 		(*it).setServerP(p);
-	std::cout << "All Servers p: " << p << std::endl;
+	//std::cout << "All Servers p: " << p << std::endl;
 }
 
-
-
-void loadBalancer::setHeterogeneous() {
-	int nStrong=0, nWeak=0, ratio=0;
-	double weakP, strongP;
-	if(pCase == SOFT_HETEROGENEOUS){
-		ratio = 2;
-	}
-	else if(pCase == HARD_HETEROGENEOUS){
-		ratio = 10;
-	}
-	if(nRatio == fiveToFive){
-		nStrong = 5;
-		nWeak = 5;
-	}
-	else if(nRatio == oneToNine){
-		nStrong = 1;
-		nWeak = 9;
-	}
-	else if(nRatio == nineToOne){
-		nStrong = 9;
-		nWeak = 1;
-	}
-
-
-	weakP = calculateWeakP(nStrong,nWeak,ratio);
-	strongP = weakP * (double)ratio;
-	cout << "strongP: " << strongP << endl;
-	cout << "weakP: " << weakP << endl;
-
-
-	//weakP = pStrongConst/(double)ratio;
+void loadBalancer::setHeterogeneous(double pStrong, double pWeak, int nStrong) {
 	vector<Server>::iterator it = servers.begin();
-	for(int i=0; i<nWeak; i++){
-		(*it).setServerP(weakP);
+	for(int i=0; i<nStrong; i++){
+		(*it).setServerP(pStrong);
 		it++;
 	}
-	for(int i=nWeak; i<numOfServers; i++){
-		(*it).setServerP(strongP);
+	for(int i=nStrong; i<numOfServers; i++){
+		(*it).setServerP(pWeak);
 		it++;
 	}
-	//double lambda = calculateNHlambda(nStrong, nWeak, ratio);
-	cout << "weakP: " << weakP << endl;
-	cout << "strongP: " << strongP << endl;
 }
 
-void loadBalancer::completeTasks(int geomValues[]){
-	int i = 0;
-	/*
-	for (int j=0; j<numOfServers; j++)
-		cout << "Geom Values in index " << j << ": " << geomValues[j] << endl;
-	*/
-	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++){
-		(*it).completeTasks(geomValues[i]);
-		i++;
-		// JIQ, PI: if chosen server was empty and now got filled, remove it from empty_servers set
-		if((this->alg == JIQ || this->alg == PI) && (*it).getServerSize() == 0) {
-			this->empty_servers.insert((*it).getServerID());
-		}
-	}
-}
 
 int loadBalancer::averageTasksInSystem(){
 	int taskSum = 0;
@@ -154,7 +129,7 @@ void loadBalancer::updateMinimalServersSet(int min){
 int loadBalancer::doJSQ(){
 	int min = getMinimalServerSize();
 	updateMinimalServersSet(min);
-	int chosenServerId = chooseRandomServer(minimal_servers, true);
+	int chosenServerId = chooseRandomServerFromSet(minimal_servers, true);
 	return chosenServerId;
 }
 
@@ -165,10 +140,10 @@ int loadBalancer::doJSQ(){
 int loadBalancer::doJIQ(){
 	int chosenServer;
 	if(empty_servers.empty()){ // if there are no empty servers, pick one randomly from all servers
-		chosenServer = chooseRandomServer(empty_servers, false); // doesnt consider empty_servers at all
+		chosenServer = chooseRandomServerFromSet(empty_servers, false); // doesnt consider empty_servers at all
 	}
 	else { // there are some empty servers, pick one randomly from empty servers
-		chosenServer = chooseRandomServer(empty_servers, true);
+		chosenServer = chooseRandomServerFromSet(empty_servers, true);
 	}
 	return chosenServer;
 }
@@ -180,15 +155,35 @@ int loadBalancer::doPI(){
 		chosenServer = this->lastIdle;
 	}
 	else { // there are some empty servers, pick one randomly from empty servers
-		chosenServer = chooseRandomServer(empty_servers, true); // like JIQ
+		chosenServer = chooseRandomServerFromSet(empty_servers, true); // like JIQ
 		this->lastIdle = chosenServer;
 	}
 	return chosenServer;
 }
 
+int loadBalancer::doPI_K(){
+	int chosenServer;
+	if(empty_servers.empty()){ // if there are no empty servers
+		if(lastIdled.empty()){
+			chosenServer = chooseRandomServerFromQueue(lastIdled, false); // pick one from all
+		}
+		else{
+			chosenServer = chooseRandomServerFromQueue(lastIdled, true); // pick one from queue
+		}
+	}
+	else { // there are some empty servers, pick one randomly from empty servers
+		chosenServer = chooseRandomServerFromSet(empty_servers, true); // like JIQ and PI
+	}
+	return chosenServer;
 
-
-
-
-
-
+	/*
+	int chosenServer;
+	if(lastIdled.empty()){ // randomize from all servers
+		chosenServer = chooseRandomServerFromQueue(lastIdled, false);
+	}
+	else{
+		chosenServer = chooseRandomServerFromQueue(lastIdled, true);
+	}
+	return chosenServer;
+	 */
+}
