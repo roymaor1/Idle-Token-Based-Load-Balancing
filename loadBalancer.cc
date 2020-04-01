@@ -1,6 +1,3 @@
-//
-// Created by Roy on 28/10/2018.
-//
 #include <iostream>
 #include "loadBalancer.h"
 
@@ -35,10 +32,6 @@ void loadBalancer::sendTasks(int serverIndex, int numOfTasks){ // send tasks to 
 
 void loadBalancer::completeTasks(int geomValues[]){
 	int i = 0, old_size;
-	/*
-	for (int j=0; j<numOfServers; j++)
-		cout << "Geom Values in index " << j << ": " << geomValues[j] << endl;
-	*/
 	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++){
 		old_size = (*it).getServerSize();
 		(*it).completeTasks(geomValues[i]);
@@ -59,7 +52,6 @@ void loadBalancer::completeTasks(int geomValues[]){
 void loadBalancer::print() {
 	int i=0;
 	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++) {
-		//std::cout << "Server number " << i << ": " << std::endl;
 		(*it).print();
 		i++;
 	}
@@ -68,7 +60,6 @@ void loadBalancer::print() {
 void loadBalancer::setHomogeneous(double p) {
 	for (vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
 		(*it).setServerP(p);
-	//std::cout << "All Servers p: " << p << std::endl;
 }
 
 void loadBalancer::setHeterogeneous(double pStrong, double pWeak, int nStrong) {
@@ -176,15 +167,5 @@ int loadBalancer::doPI_K(){
 	}
 	return chosenServer;
 
-	/*
-	int chosenServer;
-	if(lastIdled.empty()){ // randomize from all servers
-		chosenServer = chooseRandomServerFromQueue(lastIdled, false);
-	}
-	else{
-		chosenServer = chooseRandomServerFromQueue(lastIdled, true);
-	}
-	return chosenServer;
-	 */
 }
 ///
