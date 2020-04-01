@@ -1,10 +1,5 @@
-//
-// Created by Roy on 15/11/2018.
-//
-
 #include "distribution.h"
 
-// called once
 unsigned generateSeed(){
 	unsigned seed = (unsigned int)std::chrono::steady_clock::now().time_since_epoch().count();
 	return seed;
@@ -16,10 +11,9 @@ std::default_random_engine generateEngine(unsigned seed){
 }
 
 int chooseRandomServerFromSet(set<int> serverPool, bool isValid){
-	//return *(serverPool.begin());
 	int poolSize, randNum, chosenIndex, chosenServer;
 	randNum = rand();
-	if(!isValid){ //randomizing among all servers
+	if(!isValid){ // randomizing among all servers
 		poolSize = numOfServers;
 		chosenIndex = randNum % poolSize;
 		return chosenIndex; // server and index are the same
@@ -33,10 +27,9 @@ int chooseRandomServerFromSet(set<int> serverPool, bool isValid){
 }
 
 int chooseRandomServerFromQueue(queue<int> serverPool, bool isValid){
-	//return *(serverPool.begin());
 	int poolSize, randNum, chosenIndex, chosenServer, numOfPops;
 	randNum = rand();
-	if(!isValid){ //randomizing among all servers
+	if(!isValid){ // randomizing among all servers
 		poolSize = numOfServers;
 		chosenIndex = randNum % poolSize;
 		return chosenIndex; // server and index are the same
@@ -97,18 +90,6 @@ void calcParams(int h_type, int* n_Strong, double* p_Strong, double* p_Weak){
 
 double calculateMean(double constant /*int nStrong, double p_Strong, int ratio*/){
     return log(constant) - 0.5;
-    /*
-	if(ratio == 1){ //homo
-		return log(10*(1-p_Strong))-log(p_Strong)-0.5;
-	}
-	int nWeak  = numOfServers - nStrong;
-	double ln1A = ratio * nStrong * (1-p_Strong);
-	double ln1B = nWeak * (1 - ratio * p_Strong);
-	double ln2 = ratio * p_Strong;
-	double mean = log(ln1A + ln1B) - log(ln2) - 0.5;
-	return mean;
-     */
-
 }
 
 int getRatio(int Case){
@@ -127,4 +108,4 @@ int getRatio(int Case){
             break;
     }
 }
-///
+////
